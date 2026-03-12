@@ -1,0 +1,1 @@
+# SpotElectricitySaver
