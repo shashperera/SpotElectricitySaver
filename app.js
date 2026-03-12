@@ -4,7 +4,10 @@
 //  via spot-hinta.fi (free, CORS-enabled, Finnish VAT included)
 // ═══════════════════════════════════════════════════════════
 
-const PROXY_URL = 'http://localhost:3001';
+// When running locally with proxy.js, set this to 'http://localhost:3001'.
+// When deployed to GitHub Pages (or any static host), leave as empty string —
+// the app will fetch directly from spot-hinta.fi which supports CORS.
+const PROXY_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : '';
 const SPOT_URL  = 'https://api.spot-hinta.fi/TodayAndDayForward';
 
 // Price thresholds in c/kWh (spot price incl. 24% Finnish VAT)
