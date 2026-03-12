@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚡ Smart Energy – Kontula, Helsinki</title>
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="header-title">Smart Energy Planner</div>
+      <div class="header-subtitle">📍 Kontula, Helsinki · Finland (FI zone)</div>
+    </div>
+  </div>
+  <div class="header-price-area">
+    <div class="current-price-display" id="currentPriceDisplay">–</div>
+    <div class="current-price-label">Now (c/kWh)</div>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="today">📊 Today</button>
+  <button class="tab-btn" data-tab="tomorrow">🔮 Tomorrow</button>
+  <button class="tab-btn" data-tab="appliances">🔌 Appliances</button>
+  <button class="tab-btn" data-tab="tips">💡 Tips</button>
+</nav>
+
+<main class="main">
+
+  <!-- ══════════════════════════════════════════════
+       TODAY TAB
+  ══════════════════════════════════════════════ -->
+  <section class="tab-content active" id="tab-today">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Today's Electricity Prices</h1>
+        <p class="page-subtitle" id="todayDate">Loading…</p>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="refreshPrices()">↻ Refresh</button>
+    </div>
+
+    <!-- Hero recommendation -->
+    <div class="hero-card" id="heroCard">
+      <div class="hero-icon" id="heroIcon">⏳</div>
+      <div class="hero-text">
+        <div class="hero-title" id="heroTitle">Fetching live spot prices…</div>
+        <div class="hero-sub"  id="heroSub">Getting data from Nord Pool via spot-hinta.fi</div>
+      </div>
+      <div class="hero-price-box">
+        <div class="hero-price" id="heroPrice">–</div>
+        <div class="hero-price-unit">c/kWh</div>
+      </div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <!-- 24-hour chart -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">24-Hour Price Forecast</div>
+        <span class="card-subtitle" id="chartUpdated"></span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="priceChart"></canvas>
+      </div>
+      <div class="price-legend">
+        <span class="legend-dot" style="background:#22c55e"></span> Very cheap (&lt;3c)
+        <span class="legend-dot ml" style="background:#84cc16"></span> Cheap (3–7c)
+        <span class="legend-dot ml" style="background:#eab308"></span> Medium (7–15c)
+        <span class="legend-dot ml" style="background:#f97316"></span> Expensive (15–25c)
+        <span class="legend-dot ml" style="background:#ef4444"></span> Very expensive (&gt;25c)
+      </div>
+    </div>
+
+    <!-- Best / worst hours -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title mb-2">✅ Best Hours to Run Appliances</div>
+        <div id="bestHours"></div>
+      </div>
+      <div class="card">
+        <div class="card-title mb-2">❌ Avoid These Hours</div>
+        <div id="worstHours"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       TOMORROW TAB
+  ══════════════════════════════════════════════ -->
+  <section class="tab-content" id="tab-tomorrow">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Tomorrow's Electricity Prices</h1>
+        <p class="page-subtitle" id="tomorrowDate">Nord Pool publishes prices around 14:00 Finnish time.</p>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="refreshPrices()">↻ Refresh</button>
+    </div>
+
+    <div id="tomorrowContent">
+      <div class="card text-center" style="padding:48px 24px">
+        <div style="font-size:48px;margin-bottom:14px">🕐</div>
+        <div class="card-title">Loading tomorrow's prices…</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       APPLIANCES TAB
+  ══════════════════════════════════════════════ -->
+  <section class="tab-content" id="tab-appliances">
+
+    <h1 class="page-title">🔌 Appliance Cost Planner</h1>
+    <p class="page-subtitle">See the exact cost and best time to run each appliance based on today's prices.</p>
+
+    <div class="appliance-grid" id="applianceGrid">
+      <div class="card text-center" style="grid-column:1/-1;padding:40px">
+        <div style="font-size:32px;margin-bottom:8px">⚡</div>
+        <p class="text-muted">Loading appliance data…</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       TIPS TAB
+  ══════════════════════════════════════════════ -->
+  <section class="tab-content" id="tab-tips">
+
+    <h1 class="page-title">💡 Electricity Saving Tips</h1>
+    <p class="page-subtitle">How to cut your electricity bill in Finland with a spot price (pörssisähkö) contract.</p>
+
+    <!-- How spot pricing works -->
+    <div class="card">
+      <div class="card-title mb-2">⚡ How Finnish Spot Pricing Works – Daily Pattern</div>
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-box-icon">🌅</div>
+          <div class="info-box-title">Morning Peak (06–09)</div>
+          <div class="info-box-text">Everyone wakes up at once. Prices spike. Avoid washing machine, sauna, and dishwasher during this window.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-icon">☀️</div>
+          <div class="info-box-title">Daytime (09–16)</div>
+          <div class="info-box-text">Solar production is higher. Prices often moderate. Good time to run dishwasher or washing machine if you're home.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-icon">🌆</div>
+          <div class="info-box-title">Evening Peak (17–21)</div>
+          <div class="info-box-text">People come home, cook, use sauna. Most expensive window. Avoid heavy appliances — TV or kettle only.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-icon">🌙</div>
+          <div class="info-box-title">Night (22–06)</div>
+          <div class="info-box-text">Lowest demand = cheapest prices. Set timers on dishwasher, washing machine, and robot vacuum for this window!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tips list -->
+    <div class="card">
+      <div class="card-title mb-2">🏆 Top 8 Tips for Kontula</div>
+      <div class="tips-list">
+        <div class="tip-item"><div class="tip-num">1</div><div><strong>Set a timer on your washing machine</strong> — start it at 01:00–04:00 when prices are lowest. Most machines have a delay-start feature.</div></div>
+        <div class="tip-item"><div class="tip-num">2</div><div><strong>Avoid the sauna during 17:00–21:00</strong> — peak pricing can make it 3–5× more expensive than heating at 23:00.</div></div>
+        <div class="tip-item"><div class="tip-num">3</div><div><strong>Only boil what you need</strong> — a full 1.7L kettle uses ~0.15 kWh. Half-fill it and save 50% every time.</div></div>
+        <div class="tip-item"><div class="tip-num">4</div><div><strong>Check tomorrow's prices at 14:00</strong> — Nord Pool publishes next-day prices daily. Plan your heavy usage a day ahead.</div></div>
+        <div class="tip-item"><div class="tip-num">5</div><div><strong>Run the dishwasher at night</strong> — use delay start and run at 01:00–03:00 for maximum savings without interrupting your day.</div></div>
+        <div class="tip-item"><div class="tip-num">6</div><div><strong>Charge your vacuum at night</strong> — robot and cordless vacuums should charge during the cheapest hours (00:00–06:00).</div></div>
+        <div class="tip-item"><div class="tip-num">7</div><div><strong>Air fryer vs oven</strong> — an air fryer uses about half the energy of a traditional oven. Use it during cheap hours instead of a big oven.</div></div>
+        <div class="tip-item"><div class="tip-num">8</div><div><strong>Spot vs fixed contract</strong> — with a spot (pörssisähkö) contract, shifting usage to cheap hours can save €10–30/month depending on your habits!</div></div>
+      </div>
+    </div>
+
+    <!-- Monthly savings calculator -->
+    <div class="card">
+      <div class="card-title mb-2">💰 Estimated Monthly Savings per Appliance</div>
+      <p class="text-muted mb-2" style="font-size:13px">Shifting from expensive hours (avg 18 c/kWh) to cheap hours (avg 4 c/kWh), 20 uses/month.</p>
+      <div class="savings-grid" id="savingsGrid"></div>
+    </div>
+
+    <!-- What the price includes -->
+    <div class="card">
+      <div class="card-title mb-2">📋 What Does the Spot Price Include?</div>
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-box-icon">📊</div>
+          <div class="info-box-title">Spot Price (shown in this app)</div>
+          <div class="info-box-text">Variable, hourly. Typically 2–20 c/kWh in Finland. Includes 24% VAT.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-icon">🔌</div>
+          <div class="info-box-title">Transfer Fee (siirtohinnoittelu)</div>
+          <div class="info-box-text">Fixed ~3–5 c/kWh. Paid to your local grid operator (e.g., Helen, Caruna). Not shown here.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-icon">🏛️</div>
+          <div class="info-box-title">Electricity Tax</div>
+          <div class="info-box-text">Fixed ~2.7 c/kWh set by Finnish government. Added on top of the spot price. Not shown here.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-icon">🏢</div>
+          <div class="info-box-title">Supplier Margin</div>
+          <div class="info-box-text">~0.2–0.5 c/kWh added by your electricity company (e.g., Helen, Fortum). Not shown here.</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>⚡ <strong>Smart Energy Planner</strong> · 📍 Kontula, Helsinki · Finland (FI)</p>
+  <p style="margin-top:6px">
+    <a href="https://www.spot-hinta.fi" target="_blank">spot-hinta.fi</a> ·
+    <a href="https://www.nordpoolgroup.com" target="_blank">Nord Pool</a> ·
+    <a href="https://www.fingrid.fi" target="_blank">Fingrid</a>
+  </p>
+  <p style="margin-top:8px;font-size:11px;opacity:0.6">
+    Spot prices incl. 24% Finnish VAT. Add transfer fee (~3–5 c/kWh) + electricity tax (~2.7 c/kWh) for total cost.
+  </p>
+</footer>
+
+<div class="notification" id="notification"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
