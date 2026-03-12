@@ -195,7 +195,7 @@ function renderHeroCard(cur) {
 
   if (p < T.veryCheap) {
     icon = '🟢'; cls = 'state-cheap';
-    title = 'Great time — use whatever you like!';
+    title = 'Great time to use whatever you like!';
     sub   = `At ${fmt2(p)} c/kWh this is one of the cheapest hours. Run the washing machine, dishwasher, sauna, or vacuum now!`;
   } else if (p < T.cheap) {
     icon = '🟢'; cls = 'state-cheap';
@@ -335,8 +335,20 @@ function renderBestWorstHours(prices, bestId, worstId) {
 
   const bEl = byId(bestId);
   const wEl = byId(worstId);
-  if (bEl) bEl.innerHTML = `<div class="hour-list">${best5.map(p => makeRow(p, 'good')).join('')}</div>`;
-  if (wEl) wEl.innerHTML = `<div class="hour-list">${worst5.map(p => makeRow(p, 'bad')).join('')}</div>`;
+    const uniqueByHour = arr => {
+        const seen = new Set();
+        return arr.filter(item => {
+            const hour = hourOf(item.DateTime);
+            if (seen.has(hour)) return false;
+            seen.add(hour);
+            return true;
+        });
+    };
+    const uniqueBest5 = uniqueByHour(best5);
+    const uniqueWorst5 = uniqueByHour(worst5);
+
+    if (bEl) bEl.innerHTML = `<div class="hour-list">${uniqueBest5.map(p => makeRow(p, 'good')).join('')}</div>`;
+  if (wEl) wEl.innerHTML = `<div class="hour-list">${uniqueWorst5.map(p => makeRow(p, 'bad')).join('')}</div>`;
 }
 
 // ── Render: Today tab ────────────────────────────────────────
