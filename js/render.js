@@ -32,7 +32,7 @@ export function renderHeroCard(cur) {
 
   if (p < T.veryCheap) {
     icon = '🟢'; cls = 'state-cheap';
-    title = 'Great time — use whatever you like!';
+    title = 'Great time to use whatever you like!';
     sub   = `At ${fmt2(p)} c/kWh this is one of the cheapest hours. Run the washing machine, dishwasher, sauna, or vacuum now!`;
   } else if (p < T.cheap) {
     icon = '🟢'; cls = 'state-cheap';
@@ -334,3 +334,4 @@ export function renderTomorrow(state) {
     renderBestWorstHours(prices, 'tBest', 'tWorst');
   }, 30);
 }
+
